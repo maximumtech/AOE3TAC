@@ -33,6 +33,8 @@ public class ScreenMainLoading extends Screen {
 			if (!done && ImageRenderer.ins.postinit()) {
 				System.out.println("Art Loaded!");
 				done = true;
+				close();
+				// GuiRenderer.ins.screens.add();
 			}
 		}
 	}
