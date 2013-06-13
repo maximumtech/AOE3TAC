@@ -15,5 +15,9 @@
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="lib" path="C:/Users/Max/Downloads/lwjgl_util.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Max/Desktop/ardor3d/ardor3d-collada-0.8.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Max/Desktop/ardor3d/ardor3d-core-0.8.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Max/Desktop/ardor3d/ardor3d-extras-0.8.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Max/Desktop/ardor3d/ardor3d-animation-0.8.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
