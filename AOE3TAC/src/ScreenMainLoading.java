@@ -1,8 +1,9 @@
+import java.io.File;
+
 public class ScreenMainLoading extends Screen {
 	
 	public ScreenMainLoading() {
-		ImageRenderer.ins.loadImage("ui/loading/loading");
-		Model.getModel("ui/loading/loadingcoin");
+		ImageRenderer.ins.recurDir(new File(Start.path + "art\\ui\\loading"));
 		Thread run = new Thread("threadRun" + System.currentTimeMillis() % 10000) { // thread loading
 		
 			@Override
@@ -34,7 +35,7 @@ public class ScreenMainLoading extends Screen {
 				System.out.println("Art Loaded!");
 				done = true;
 				close();
-				// GuiRenderer.ins.screens.add();
+				GuiRenderer.ins.screens.add(new ScreenMainMenu());
 			}
 		}
 	}

@@ -1,8 +1,12 @@
+import com.ardor3d.util.ReadOnlyTimer;
+
 // Made by Richard
-public class Timer {
+public class Timer implements ReadOnlyTimer {
 	float ticksPerSecond;
 	
 	private double lastHRTime;
+	
+	public static Timer timer = null;
 	
 	public int elapsedTicks;
 	
@@ -19,16 +23,57 @@ public class Timer {
 	
 	private double timeSyncAdjustment = 1.0D;
 	
+	private long startTime = 0L;
+	
 	public Timer(float par1) {
+		this.startTime = System.currentTimeMillis();
 		this.ticksPerSecond = par1;
 		this.lastSyncSysClock = System.currentTimeMillis();
 		this.lastSyncHRClock = System.nanoTime() / 1000000L;
+		timer = this;
 	}
+	
+	public double getTimeInSeconds() {
+		return getTime() / 1000D;
+	}
+	
+	public long getTime() {
+		return (System.currentTimeMillis() - startTime) * 1000000L;
+	}
+	
+	public long getResolution() {
+		return 1000000L;
+	}
+	
+	public double getFrameRate() {
+		return (double) fps;
+	}
+	
+	public double getTimePerFrame() {
+		return (double) tps;
+	}
+	
+	private long lastFPS = 0L;
+	private int ffps = 0;
+	public int fps = 0;
+	private long lastTPS = 0L;
+	private int ftps = 0;
+	public int tps = 0;
 	
 	/**
 	 * Updates all fields of the Timer using the current time
 	 */
 	public void updateTimer() {
+		if (lastFPS + 1000L > System.currentTimeMillis()) {
+			fps = ffps;
+			ffps = 0;
+		}
+		ffps++;
+		if (lastTPS + 1000L > System.currentTimeMillis()) {
+			tps = ftps;
+			ftps = 0;
+		}
+		ffps++;
 		long var1 = System.currentTimeMillis();
 		long var3 = var1 - this.lastSyncSysClock;
 		long var5 = System.nanoTime() / 1000000L;
@@ -73,6 +118,8 @@ public class Timer {
 		if (this.elapsedTicks > 10) {
 			this.elapsedTicks = 10;
 		}
+		
+		ftps += this.elapsedTicks;
 		
 		this.renderPartialTicks = this.elapsedPartialTicks;
 	}

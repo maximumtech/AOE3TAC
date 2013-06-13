@@ -45,7 +45,7 @@ public class ImageRenderer {
 		return done;
 	}
 	
-	private void recurDir(File dir) {
+	public void recurDir(File dir) {
 		for (File d : dir.listFiles()) {
 			if (d.isDirectory()) {
 				recurDir(d);
