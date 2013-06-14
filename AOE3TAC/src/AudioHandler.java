@@ -12,22 +12,20 @@ public class AudioHandler {
 		
 	}
 	
-	public void loadClip(String argpath) { // credit to mini-me from stackoverflow
-		String path = argpath.replace("/", "\\");
-		File file = new File(Start.path + "audio\\" + path + ".wav");
+	public void loadClip(String path) { // credit to mini-me from stackoverflow
+		File file = new File(Start.path + "audio\\" + path.replace("/", "\\") + ".wav");
 		if (file.exists() && !clips.containsKey(path)) {
 			try {
 				Clip clip = AudioSystem.getClip();
 				clip.open(AudioSystem.getAudioInputStream(file));
-				clips.put(argpath, clip);
+				clips.put(path, clip);
 			}catch (Exception e) {
 				e.printStackTrace();
 			}
 		}
 	}
 	
-	public void playClip(String argpath) {
-		String path = argpath.replace("/", "\\");
+	public void playClip(String path) {
 		loadClip(path);
 		if (clips.containsKey(path)) {
 			clips.get(path).start();

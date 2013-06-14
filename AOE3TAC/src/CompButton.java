@@ -5,19 +5,32 @@ public class CompButton extends Component implements IMouseHandler {
 	public String displayText = "";
 	public int width = 0;
 	public int height = 0;
+	public int imgw = 0;
+	public boolean isDisabled = false;
 	
-	public CompButton(Screen parent, int x, int y, int width, int height, String displayText) {
+	public CompButton(Screen parent, int x, int y, int width, int height, String displayText, int w) {
 		super(parent, x, y);
 		this.displayText = displayText;
 		this.width = width;
 		this.height = height;
+		imgw = w;
+	}
+	
+	public CompButton(Screen parent, int x, int y, int width, int height, String displayText) {
+		this(parent, x, y, width, height, displayText, 128);
 	}
 	
 	public void render() {
-		if (isInside(Mouse.getX(), Mouse.getY())) {
-			ImageRenderer.ins.render(Start.screenWidth / getRelX(), Start.screenHeight / getRelY(), "ui/highlightedbutton");
+		if (isDisabled) {
+			ImageRenderer.ins.render(Start.screenWidth / getRelX(), Start.screenHeight / getRelY(), "ui/button/button" + imgw + "d");
+		}else if (isInside(Mouse.getX(), Mouse.getY())) {
+			if (Mouse.isButtonDown(0)) {
+				ImageRenderer.ins.render(Start.screenWidth / getRelX(), Start.screenHeight / getRelY(), "ui/button/button" + imgw + "c");
+			}else {
+				ImageRenderer.ins.render(Start.screenWidth / getRelX(), Start.screenHeight / getRelY(), "ui/button/button" + imgw + "r");
+			}
 		}else {
-			ImageRenderer.ins.render(Start.screenWidth / getRelX(), Start.screenHeight / getRelY(), "ui/button");
+			ImageRenderer.ins.render(Start.screenWidth / getRelX(), Start.screenHeight / getRelY(), "ui/button/button" + imgw + "n");
 		}
 	}
 	
