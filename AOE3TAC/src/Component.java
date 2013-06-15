@@ -1,20 +1,20 @@
 public class Component {
 	
 	public Screen parent;
-	public int x;
-	public int y;
+	public float x;
+	public float y;
 	
-	public Component(Screen parent, int x, int y) {
+	public Component(Screen parent, float x, float y) {
 		this.parent = parent;
 		this.x = x;
 		this.y = y;
 	}
 	
-	public int getRelX() { // get x relative to parent
+	public float getRelX() { // get x relative to parent
 		return parent.getRelComponentX() + x;
 	}
 	
-	public int getRelY() { // get y relative to parent
+	public float getRelY() { // get y relative to parent
 		return parent.getRelComponentY() + y;
 	}
 	

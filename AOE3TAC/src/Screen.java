@@ -4,6 +4,10 @@ public class Screen {
 	
 	public ArrayList<Component> components = new ArrayList<Component>();
 	
+	public void register(Component comp) {
+		components.add(comp);
+	}
+	
 	public Screen() { // on open(usually), not yet rendering.
 	
 	}
@@ -41,12 +45,12 @@ public class Screen {
 	
 	}
 	
-	public int getRelComponentX() {
-		return 0;
+	public float getRelComponentX() {
+		return 0F;
 	}
 	
-	public int getRelComponentY() {
-		return 0;
+	public float getRelComponentY() {
+		return 0F;
 	}
 	
 }

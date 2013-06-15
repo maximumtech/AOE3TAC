@@ -18,10 +18,10 @@ public class GuiRenderer {
 			GL11.glPushMatrix(); // we do not want guis depth combining
 			Start.set2D();
 			screen.render(true); // render screen 2D
+			screen.renderComponents(); // render button, textboxes, etc
 			GL11.glTranslatef(-0.5F, -0.5F, 0F);
 			Start.set3D();
 			screen.render(false); // render screen 3D
-			screen.renderComponents(); // render button, textboxes, etc
 			GL11.glPopMatrix();
 		}
 		GL11.glPopMatrix();
