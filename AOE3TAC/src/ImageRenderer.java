@@ -33,16 +33,17 @@ public class ImageRenderer {
 		done = true;
 	}
 	
-	public boolean postinit() { // load files in, OGL safe, not threaded
-		if (done) {
-			for (File d : toload) {
-				String name = d.getPath();
-				name = name.replace("\\", "/");
-				name = name.substring(name.indexOf("AOE3TAC/art/") + 12, name.length() - 4);
-				loadImage(name);
-			}
-		}
+	public boolean canpostinit() { // load files in, OGL safe, not threaded
 		return done;
+	}
+	
+	public void postinit() {
+		for (File d : toload) {
+			String name = d.getPath();
+			name = name.replace("\\", "/");
+			name = name.substring(name.indexOf("AOE3TAC/art/") + 12, name.length() - 4);
+			loadImage(name);
+		}
 	}
 	
 	public void recurDir(File dir) {
