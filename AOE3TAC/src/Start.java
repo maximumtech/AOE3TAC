@@ -160,6 +160,7 @@ public class Start {
 		}catch (Exception e) {
 			e.printStackTrace();
 		}
+		MusicPlayer.ins.stop();
 		// exit program, save files, etc
 	}
 	
