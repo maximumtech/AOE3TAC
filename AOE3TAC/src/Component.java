@@ -6,7 +6,6 @@ public class Component {
 	
 	public static enum RFlag {
 		ASPECT, // to aspect
-		SCALE, // to scale
 		REG; // default
 	}
 	
@@ -23,8 +22,6 @@ public class Component {
 				return x;
 			case ASPECT:
 				return x * (1F / ((float) Start.screenWidth / 1024F));
-			case SCALE:
-				return x;
 		}
 		return x;
 	}
@@ -43,8 +40,6 @@ public class Component {
 				return y;
 			case ASPECT:
 				return y * (1F / ((float) Start.screenHeight / 1024F));
-			case SCALE:
-				return y;
 		}
 		return y;
 	}
