@@ -111,6 +111,34 @@ public class ImageRenderer {
 		return null;
 	}
 	
+	public void render(float x, float y, float width, float height, String path, Component.RFlag flag) {
+		switch (flag) {
+			case REG:
+				render(x, y, width, height, path);
+				break;
+			case ASPECT:
+				renderAspect(x, y, width, height, path);
+				break;
+			case SCALE:
+				renderScale(x, y, width, height, path);
+				break;
+		}
+	}
+	
+	public void render(float x, float y, String path, Component.RFlag flag) {
+		switch (flag) {
+			case REG:
+				render(x, y, path);
+				break;
+			case ASPECT:
+				renderAspect(x, y, path);
+				break;
+			case SCALE:
+				render(x, y, path);
+				break;
+		}
+	}
+	
 	public void render(float x, float y, String path) {
 		if (images.containsKey(path)) {
 			GL11.glEnable(GL11.GL_TEXTURE_2D);
@@ -127,6 +155,51 @@ public class ImageRenderer {
 			GL11.glVertex3f(x2, y2, 0F);
 			GL11.glTexCoord2f(0F, 0F);
 			GL11.glVertex3f(x, y2, 0F);
+			GL11.glEnd();
+			GL11.glDisable(GL11.GL_TEXTURE_2D);
+		}
+	}
+	
+	public void renderAspect(float x, float y, String path) { // makes y and x coordinates the same relative distance.
+		if (images.containsKey(path)) {
+			GL11.glEnable(GL11.GL_TEXTURE_2D);
+			bind(path);
+			Texture t = images.get(path);
+			float width = x + ((float) t.width / (float) Start.screenWidth) * Start.screenWidthRatio;
+			float height = y + ((float) t.height / (float) Start.screenHeight) * Start.screenHeightRatio;
+			float x2 = x * (1F / ((float) Start.screenWidth / 1024F));
+			float y2 = y * (1F / ((float) Start.screenHeight / 1024F));
+			GL11.glBegin(GL11.GL_QUADS);
+			GL11.glTexCoord2f(0F, 1F);
+			GL11.glVertex3f(x2, y2, 0F);
+			GL11.glTexCoord2f(1F, 1F);
+			GL11.glVertex3f(width, y2, 0F);
+			GL11.glTexCoord2f(1F, 0F);
+			GL11.glVertex3f(width, height, 0F);
+			GL11.glTexCoord2f(0F, 0F);
+			GL11.glVertex3f(x2, height, 0F);
+			GL11.glEnd();
+			GL11.glDisable(GL11.GL_TEXTURE_2D);
+		}
+	}
+	
+	public void renderAspect(float x, float y, float wid, float hei, String path) { // makes y and x coordinates the same relative distance.
+		if (images.containsKey(path)) {
+			GL11.glEnable(GL11.GL_TEXTURE_2D);
+			bind(path);
+			float width = x + wid;
+			float height = y + hei;
+			float x2 = x * (1F / ((float) Start.screenWidth / 1024F));
+			float y2 = y * (1F / ((float) Start.screenHeight / 1024F));
+			GL11.glBegin(GL11.GL_QUADS);
+			GL11.glTexCoord2f(0F, 1F);
+			GL11.glVertex3f(x2, y2, 0F);
+			GL11.glTexCoord2f(1F, 1F);
+			GL11.glVertex3f(width, y2, 0F);
+			GL11.glTexCoord2f(1F, 0F);
+			GL11.glVertex3f(width, height, 0F);
+			GL11.glTexCoord2f(0F, 0F);
+			GL11.glVertex3f(x2, height, 0F);
 			GL11.glEnd();
 			GL11.glDisable(GL11.GL_TEXTURE_2D);
 		}

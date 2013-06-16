@@ -16,7 +16,7 @@ public class CompButton extends Component implements IMouseHandler {
 		imgw = w;
 	}
 	
-	public CompButton(Screen parent, int x, int y, int width, int height, String displayText) {
+	public CompButton(Screen parent, float x, float y, float width, float height, String displayText) {
 		this(parent, x, y, width, height, displayText, 128);
 	}
 	
@@ -34,7 +34,9 @@ public class CompButton extends Component implements IMouseHandler {
 		}
 	}
 	
-	public boolean isInside(int x2, int y2) {
+	public boolean isInside(int x, int y) {
+		float x2 = x / Start.screenWidth;
+		float y2 = y / Start.screenHeight;
 		return x2 > getRelX() && x2 < getRelX() + width && y2 > getRelY() && y2 < getRelY() + height;
 	}
 	
