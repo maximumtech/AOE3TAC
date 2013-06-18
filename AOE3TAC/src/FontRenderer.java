@@ -61,35 +61,25 @@ public class FontRenderer {
 		fonts.put(font.getName(), store);
 	}
 	
-	public void draw(float x, float y, String text, String font, Component.RFlag flag, int size) {
+	public void draw(float x, float y, String text, String font, int size) {
 		FontStorage fnt = fonts.get(font);
 		for (int i = 0; i < text.length(); i++) {
 			char chr = text.charAt(i);
 			fnt.bindGlyph(chr);
 			float wid = (float) size / (float) Start.screenWidth;
 			float hei = (float) size / (float) Start.screenHeight;
-			switch (flag) {
-				case REG:
-					ImageRenderer.ins.render(x + (wid * i), y, wid, hei);
-				case ASPECT:
-					ImageRenderer.ins.renderAspect(x + (wid * i), y, wid, hei);
-			}
+			ImageRenderer.ins.renderAspect(x + (wid * i), y, wid, hei);
 		}
 	}
 	
-	public void draw(float x, float y, String text, String font, Component.RFlag flag, float width, float height) {
+	public void draw(float x, float y, String text, String font, float width, float height) {
 		FontStorage fnt = fonts.get(font);
 		float wid = width / text.length();
 		float hei = height / text.length();
 		for (int i = 0; i < text.length(); i++) {
 			char chr = text.charAt(i);
 			fnt.bindGlyph(chr);
-			switch (flag) {
-				case REG:
-					ImageRenderer.ins.render(x + (wid * i), y, wid, hei);
-				case ASPECT:
-					ImageRenderer.ins.renderAspect(x + (wid * i), y, wid, hei);
-			}
+			ImageRenderer.ins.renderAspect(x + (wid * i), y, wid, hei);
 		}
 	}
 }

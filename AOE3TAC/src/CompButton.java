@@ -11,8 +11,8 @@ public class CompButton extends Component implements IMouseHandler {
 	public CompButton(Screen parent, float x, float y, float width, float height, String displayText, int w) {
 		super(parent, x, y);
 		this.displayText = displayText;
-		this.width = width;
-		this.height = height;
+		this.width = AspectManager.ToAspectX(width);
+		this.height = AspectManager.ToAspectY(height);
 		imgw = w;
 	}
 	
@@ -21,23 +21,27 @@ public class CompButton extends Component implements IMouseHandler {
 	}
 	
 	public void render() {
+		float x = getAspectX();
+		float y = getAspectY();
 		if (isDisabled) {
-			ImageRenderer.ins.render(getRelX(), getRelY(), "ui/button/button" + imgw + "d");
+			ImageRenderer.ins.render(x, y, width, height, "ui/button/button" + imgw + "d");
 		}else if (isInside(Mouse.getX(), Mouse.getY())) {
 			if (Mouse.isButtonDown(0)) {
-				ImageRenderer.ins.render(getRelX(), getRelY(), "ui/button/button" + imgw + "c");
+				ImageRenderer.ins.render(x, y, width, height, "ui/button/button" + imgw + "c");
 			}else {
-				ImageRenderer.ins.render(getRelX(), getRelY(), "ui/button/button" + imgw + "r");
+				ImageRenderer.ins.render(x, y, width, height, "ui/button/button" + imgw + "r");
 			}
 		}else {
-			ImageRenderer.ins.render(getRelX(), getRelY(), "ui/button/button" + imgw + "n");
+			ImageRenderer.ins.render(x, y, width, height, "ui/button/button" + imgw + "n");
 		}
 	}
 	
 	public boolean isInside(int x, int y) {
-		float x2 = x / Start.screenWidth;
-		float y2 = y / Start.screenHeight;
-		return x2 > getRelX() && x2 < getRelX() + width && y2 > getRelY() && y2 < getRelY() + height;
+		float x2 = AspectManager.ToAspectX(x);
+		float y2 = AspectManager.ToAspectY(y);
+		float xp = getAspectX();
+		float yp = getAspectY();
+		return x2 > xp && x2 < (xp + width) && y2 > yp && y2 < (yp + height);
 	}
 	
 	public void tick() {

@@ -1,7 +1,6 @@
-
 public class ScreenMainMenuBase extends Screen { // the background of the main menu, to minimize code replication
 	public ScreenMainMenuBase() {
-		register(new CompButton(this, 0.05F, 0.05F, 0.1F, 0.1F, "test", 128).setFlag(Component.RFlag.ASPECT));
+		register(new CompButton(this, 0.05F, 0.01F, 0.1F, 0.1F, "test", 128));
 	}
 	
 	public void render(boolean is2D) {

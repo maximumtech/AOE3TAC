@@ -111,7 +111,11 @@ public class ImageRenderer {
 		return null;
 	}
 	
-	public void render(float x, float y, float width, float height, String path, Component.RFlag flag) {
+	public static enum RFlag {
+		REG, ASPECT, SCALE;
+	}
+	
+	public void render(float x, float y, float width, float height, String path, RFlag flag) {
 		switch (flag) {
 			case REG:
 				render(x, y, width, height, path);
@@ -125,7 +129,7 @@ public class ImageRenderer {
 		}
 	}
 	
-	public void render(float x, float y, String path, Component.RFlag flag) {
+	public void render(float x, float y, String path, RFlag flag) {
 		switch (flag) {
 			case REG:
 				render(x, y, path);
@@ -182,10 +186,10 @@ public class ImageRenderer {
 			GL11.glEnable(GL11.GL_TEXTURE_2D);
 			bind(path);
 			Texture t = images.get(path);
-			float width = x + ((float) t.width / (float) Start.screenWidth) * Start.screenWidthRatio;
-			float height = y + ((float) t.height / (float) Start.screenHeight) * Start.screenHeightRatio;
-			float x2 = x * (1F / ((float) Start.screenWidth / 1024F));
-			float y2 = y * (1F / ((float) Start.screenHeight / 1024F));
+			float x2 = AspectManager.ToAspectX(x);
+			float y2 = AspectManager.ToAspectY(y);
+			float width = x2 + AspectManager.ToHardwareX(t.width);
+			float height = y2 + AspectManager.ToHardwareY(t.height);
 			GL11.glBegin(GL11.GL_QUADS);
 			GL11.glTexCoord2f(0F, 1F);
 			GL11.glVertex3f(x2, y2, 0F);
@@ -204,10 +208,10 @@ public class ImageRenderer {
 		if (images.containsKey(path)) {
 			GL11.glEnable(GL11.GL_TEXTURE_2D);
 			bind(path);
-			float width = x + wid;
-			float height = y + hei;
-			float x2 = x * (1F / ((float) Start.screenWidth / 1024F));
-			float y2 = y * (1F / ((float) Start.screenHeight / 1024F));
+			float x2 = AspectManager.ToAspectX(x);
+			float y2 = AspectManager.ToAspectY(y);
+			float width = x2 + wid;
+			float height = y2 + hei;
 			GL11.glBegin(GL11.GL_QUADS);
 			GL11.glTexCoord2f(0F, 1F);
 			GL11.glVertex3f(x2, y2, 0F);

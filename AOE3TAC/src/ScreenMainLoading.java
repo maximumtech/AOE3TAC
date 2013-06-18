@@ -1,4 +1,3 @@
-import java.awt.Font;
 import java.io.File;
 
 public class ScreenMainLoading extends Screen {
@@ -9,13 +8,13 @@ public class ScreenMainLoading extends Screen {
 		ImageRenderer.ins.recurDir(new File(Start.path + "art\\ui\\loading"));
 		ImageRenderer.ins.postinit();
 		AudioHandler.ins.loadClip("music/title");
-		FontRenderer.ins.load(new Font("New Times Roman", 0, 12));
 		MusicPlayer.ins.start("music/title");
 		load = System.currentTimeMillis();
 		Thread run = new Thread("threadRun" + System.currentTimeMillis() % 10000) { // thread loading
 		
 			@Override
 			public void run() {
+				// FontRenderer.ins.load(new Font("New Times Roman", 0, 12));
 				ImageRenderer.ins.init(); // load images?
 				AudioHandler.ins.init();
 			}
