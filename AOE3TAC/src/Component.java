@@ -5,6 +5,7 @@ public class Component {
 	private float y;
 	private float hx;
 	private float hy;
+	public int id = 0;
 	
 	public Component(Screen parent, float x, float y) {
 		this.parent = parent;
@@ -12,6 +13,11 @@ public class Component {
 		this.y = AspectManager.ToAspectY(y);
 		this.hx = x;
 		this.hy = y;
+	}
+	
+	public Component setID(int id) {
+		this.id = id;
+		return this;
 	}
 	
 	public float getAspectX() { // get x relative to parent

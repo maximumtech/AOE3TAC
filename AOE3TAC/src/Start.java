@@ -17,7 +17,7 @@ public class Start {
 	
 	private static Timer timer;
 	
-	public static boolean forceClose = false;
+	public static boolean forceClose = false; // if true, next frame will exit program.
 	
 	public static Random rand = new Random();
 	

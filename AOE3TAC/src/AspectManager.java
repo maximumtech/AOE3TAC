@@ -8,11 +8,11 @@ public class AspectManager { // converts from hardware coordinate(translated to 
 	}
 	
 	public static float ToAspectX(int pixelX) {
-		return ToAspectX(ToHardwareX(pixelX));
+		return ToHardwareX(pixelX);
 	}
 	
 	public static float ToAspectY(int pixelY) {
-		return ToAspectY(ToHardwareY(pixelY));
+		return ToHardwareY(pixelY);
 	}
 	
 	public static float ToHardwareX(int pixelX) {

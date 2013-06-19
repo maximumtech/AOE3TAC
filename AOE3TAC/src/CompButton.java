@@ -38,8 +38,8 @@ public class CompButton extends Component implements IMouseHandler {
 	}
 	
 	public boolean isInside(int x, int y) {
-		float x2 = (float) x / (float) Start.screenWidth * Start.screenWidthRatio;
-		float y2 = (float) y / (float) Start.screenHeight * Start.screenHeightRatio;
+		float x2 = AspectManager.ToAspectX(x);
+		float y2 = AspectManager.ToAspectY(y);
 		float xp = getAspectX();
 		float yp = getAspectY();
 		return x2 > xp && x2 < (xp + width) && y2 > yp && y2 < (yp + height);
