@@ -1,6 +1,6 @@
 public class ScreenMainMenu extends Screen {
 	public ScreenMainMenu() {
-		register(new CompButton(this, 0.045F, 0.045F, 0.1799609375F, 0.03125F, "Exit", 128).setID(0));
+		register(new CompButton(this, 0.045F, 0.045F, 0.1799609375F, 0.03125F, "Exit", 128).setID(0));// exit
 	}
 	
 	public void callComponentAction(Component component, int id) {

@@ -3,16 +3,12 @@ public class Component {
 	public Screen parent;
 	private float x;
 	private float y;
-	private float hx;
-	private float hy;
 	public int id = 0;
 	
 	public Component(Screen parent, float x, float y) {
 		this.parent = parent;
-		this.x = AspectManager.ToAspectX(x);
-		this.y = AspectManager.ToAspectY(y);
-		this.hx = x;
-		this.hy = y;
+		this.x = x;
+		this.y = y;
 	}
 	
 	public Component setID(int id) {
@@ -21,19 +17,19 @@ public class Component {
 	}
 	
 	public float getAspectX() { // get x relative to parent
-		return parent.getRelComponentX() + x;
+		return parent.getRelComponentX() + AspectManager.ToAspectX(x);
 	}
 	
 	public float getAspectY() { // get y relative to parent
-		return parent.getRelComponentY() + y;
+		return parent.getRelComponentY() + AspectManager.ToAspectY(y);
 	}
 	
 	public float getHardwareX() { // get x relative to parent
-		return parent.getRelComponentX() + hx;
+		return parent.getRelComponentX() + x;
 	}
 	
 	public float getHardwareY() { // get y relative to parent
-		return parent.getRelComponentY() + hy;
+		return parent.getRelComponentY() + y;
 	}
 	
 	public void render() { // while parent is open

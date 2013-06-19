@@ -1,18 +1,14 @@
 import org.lwjgl.input.Mouse;
 
-public class CompButton extends Component implements IMouseHandler {
+public class CompButton extends SizableComponent implements IMouseHandler {
 	
 	public String displayText = "";
-	public float width = 0;
-	public float height = 0;
 	public int imgw = 0;
 	public boolean isDisabled = false;
 	
 	public CompButton(Screen parent, float x, float y, float width, float height, String displayText, int w) {
-		super(parent, x, y);
+		super(parent, x, y, width, height);
 		this.displayText = displayText;
-		this.width = AspectManager.ToAspectX(width);
-		this.height = AspectManager.ToAspectY(height);
 		imgw = w;
 		MouseHandler.ins.register(this);
 	}
@@ -24,6 +20,8 @@ public class CompButton extends Component implements IMouseHandler {
 	public void render() {
 		float x = getAspectX();
 		float y = getAspectY();
+		float width = getWidth();
+		float height = getHeight();
 		if (isDisabled) {
 			ImageRenderer.ins.render(x, y, width, height, "ui/button/button" + imgw + "d");
 		}else if (isInside(Mouse.getX(), Mouse.getY())) {
@@ -42,6 +40,8 @@ public class CompButton extends Component implements IMouseHandler {
 		float y2 = AspectManager.ToAspectY(y);
 		float xp = getAspectX();
 		float yp = getAspectY();
+		float width = getWidth();
+		float height = getHeight();
 		return x2 > xp && x2 < (xp + width) && y2 > yp && y2 < (yp + height);
 	}
 	

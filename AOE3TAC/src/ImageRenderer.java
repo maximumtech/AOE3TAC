@@ -181,6 +181,24 @@ public class ImageRenderer {
 		GL11.glDisable(GL11.GL_TEXTURE_2D);
 	}
 	
+	public int getWidth(String path) {
+		Texture t = images.get(path);
+		return t.width;
+	}
+	
+	public int getHeight(String path) {
+		Texture t = images.get(path);
+		return t.width;
+	}
+	
+	public float getAspectedWidth(String path) {
+		return AspectManager.ToAspectX(getWidth(path));
+	}
+	
+	public float getAspectedHeight(String path) {
+		return AspectManager.ToAspectY(getHeight(path));
+	}
+	
 	public void renderAspect(float x, float y, String path) { // makes y and x coordinates the same relative distance.
 		if (images.containsKey(path)) {
 			GL11.glEnable(GL11.GL_TEXTURE_2D);
@@ -188,8 +206,8 @@ public class ImageRenderer {
 			Texture t = images.get(path);
 			float x2 = AspectManager.ToAspectX(x);
 			float y2 = AspectManager.ToAspectY(y);
-			float width = x2 + AspectManager.ToHardwareX(t.width);
-			float height = y2 + AspectManager.ToHardwareY(t.height);
+			float width = x2 + AspectManager.ToAspectX(t.width);
+			float height = y2 + AspectManager.ToAspectY(t.height);
 			GL11.glBegin(GL11.GL_QUADS);
 			GL11.glTexCoord2f(0F, 1F);
 			GL11.glVertex3f(x2, y2, 0F);
