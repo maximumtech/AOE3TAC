@@ -8,11 +8,11 @@ public class AspectManager { // converts from hardware coordinate(translated to 
 	}
 	
 	public static float ToAspectX(int pixelX) {
-		return ToHardwareX(pixelX) * (1F / ((float) Start.screenWidth / 1024F));
+		return ToAspectX(ToHardwareX(pixelX));
 	}
 	
 	public static float ToAspectY(int pixelY) {
-		return ToHardwareY(pixelY) * (1F / ((float) Start.screenHeight / 1024F));
+		return ToAspectY(ToHardwareY(pixelY));
 	}
 	
 	public static float ToHardwareX(int pixelX) {

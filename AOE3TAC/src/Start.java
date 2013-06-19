@@ -184,6 +184,7 @@ public class Start {
 	
 	public void tick() {
 		// tick
+		MouseHandler.ins.tick();
 		GuiRenderer.ins.tick();
 	}
 }

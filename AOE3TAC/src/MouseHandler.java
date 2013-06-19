@@ -4,7 +4,11 @@ import org.lwjgl.input.Mouse;
 public class MouseHandler implements IMouseHandler {
 	public static MouseHandler ins = new MouseHandler();
 	
-	public ArrayList<IMouseHandler> handlers = new ArrayList<IMouseHandler>();
+	private ArrayList<IMouseHandler> handlers = new ArrayList<IMouseHandler>();
+	
+	public void register(IMouseHandler handler) {
+		handlers.add(handler);
+	}
 	
 	private boolean[] mouseDown = new boolean[256]; // support up to 256 mouse buttons
 	
@@ -25,16 +29,22 @@ public class MouseHandler implements IMouseHandler {
 	
 	@Override
 	public void onButtonDown(int x, int y, int button) {
-		
+		for (IMouseHandler handler : handlers) {
+			handler.onButtonDown(x, y, button);
+		}
 	}
 	
 	@Override
 	public void onButtonUp(int x, int y, int button) {
-		
+		for (IMouseHandler handler : handlers) {
+			handler.onButtonUp(x, y, button);
+		}
 	}
 	
 	@Override
 	public void onButtonHeld(int x, int y, int button) {
-		
+		for (IMouseHandler handler : handlers) {
+			handler.onButtonHeld(x, y, button);
+		}
 	}
 }

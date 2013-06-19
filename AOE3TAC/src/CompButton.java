@@ -14,6 +14,7 @@ public class CompButton extends Component implements IMouseHandler {
 		this.width = AspectManager.ToAspectX(width);
 		this.height = AspectManager.ToAspectY(height);
 		imgw = w;
+		MouseHandler.ins.register(this);
 	}
 	
 	public CompButton(Screen parent, float x, float y, float width, float height, String displayText) {
@@ -37,8 +38,8 @@ public class CompButton extends Component implements IMouseHandler {
 	}
 	
 	public boolean isInside(int x, int y) {
-		float x2 = AspectManager.ToAspectX(x);
-		float y2 = AspectManager.ToAspectY(y);
+		float x2 = (float) x / (float) Start.screenWidth * Start.screenWidthRatio;
+		float y2 = (float) y / (float) Start.screenHeight * Start.screenHeightRatio;
 		float xp = getAspectX();
 		float yp = getAspectY();
 		return x2 > xp && x2 < (xp + width) && y2 > yp && y2 < (yp + height);
@@ -59,9 +60,6 @@ public class CompButton extends Component implements IMouseHandler {
 	public void onButtonUp(int x, int y, int button) {
 		if (button == 0 && isInside(x, y)) {
 			parent.callComponentAction(this, 0);
-			if (button == 0 && isInside(x, y)) {
-				AudioHandler.ins.playClip("ui/button");
-			}
 		}
 	}
 	
