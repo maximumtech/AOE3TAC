@@ -67,39 +67,43 @@ public class ImageRenderer {
 				BufferedImage image = ImageIO.read(new File(Start.path + "art\\" + path + ".png"));
 				int width = image.getWidth();
 				int height = image.getHeight();
-				int[] pixels = new int[width * height];
-				image.getRGB(0, 0, width, height, pixels, 0, width);
-				ByteBuffer bb = ByteBuffer.allocateDirect(width * height * 4);
-				for (int y = 0; y < height; y++) {
-					for (int x = 0; x < width; x++) {
-						int pixel = pixels[y * width + x];
-						bb.put((byte) ((pixel >> 16) & 0xFF));
-						bb.put((byte) ((pixel >> 8) & 0xFF));
-						bb.put((byte) (pixel & 0xFF));
-						bb.put((byte) ((pixel >> 24) & 0xFF));
-					}
-				}
-				bb.flip();
-				
-				/*
-				 * FileInputStream stream = null; int width = 0; int height = 0; try { stream = new FileInputStream(new File(Start.path + "art\\" + path + ".png")); PNGDecoder decoder = new PNGDecoder(stream); }catch (Exception e) { e.printStackTrace(); } if (stream != null) { stream.close(); }
-				 */
-				id = GL11.glGenTextures();
-				GL11.glBindTexture(GL11.GL_TEXTURE_2D, id);
-				GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_S, GL12.GL_CLAMP_TO_EDGE);
-				GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_T, GL12.GL_CLAMP_TO_EDGE);
-				GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_NEAREST);
-				GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_NEAREST);
-				GL11.glTexImage2D(GL11.GL_TEXTURE_2D, 0, GL11.GL_RGBA8, width, height, 0, GL11.GL_RGBA, GL11.GL_UNSIGNED_BYTE, bb);
 				if (argpath.startsWith("ui/fonts/")) {
-					FontRenderer.ins.loadFont(id, argpath.substring(argpath.lastIndexOf("/") + 1), width, height);
+					FontRenderer.ins.loadFont(image, argpath.substring(argpath.lastIndexOf("/") + 1), width, height);
 				}else {
+					id = loadTexture(image);
 					images.put(argpath, new Texture(width, height, id));
 				}
 			}catch (IOException e) {
 				e.printStackTrace();
 			}
 		}
+	}
+	
+	public int loadTexture(BufferedImage image) {
+		int width = image.getWidth();
+		int height = image.getHeight();
+		int[] pixels = new int[width * height];
+		image.getRGB(0, 0, width, height, pixels, 0, width);
+		ByteBuffer bb = ByteBuffer.allocateDirect(width * height * 4);
+		for (int y = 0; y < height; y++) {
+			for (int x = 0; x < width; x++) {
+				int pixel = pixels[y * width + x];
+				bb.put((byte) ((pixel >> 16) & 0xFF));
+				bb.put((byte) ((pixel >> 8) & 0xFF));
+				bb.put((byte) (pixel & 0xFF));
+				bb.put((byte) ((pixel >> 24) & 0xFF));
+			}
+		}
+		bb.flip();
+		
+		int id = GL11.glGenTextures();
+		GL11.glBindTexture(GL11.GL_TEXTURE_2D, id);
+		GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_S, GL12.GL_CLAMP_TO_EDGE);
+		GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_T, GL12.GL_CLAMP_TO_EDGE);
+		GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_NEAREST);
+		GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_NEAREST);
+		GL11.glTexImage2D(GL11.GL_TEXTURE_2D, 0, GL11.GL_RGBA8, width, height, 0, GL11.GL_RGBA, GL11.GL_UNSIGNED_BYTE, bb);
+		return id;
 	}
 	
 	public void bind(String path) {
