@@ -1,3 +1,4 @@
+import java.awt.Font;
 import java.io.File;
 
 public class ScreenMainLoading extends Screen {
@@ -14,7 +15,7 @@ public class ScreenMainLoading extends Screen {
 		
 			@Override
 			public void run() {
-				// FontRenderer.ins.load(new Font("New Times Roman", 0, 12));
+				FontRenderer.ins.preinit(new Font("Arial", 0, 12));
 				ImageRenderer.ins.init(); // load images?
 				AudioHandler.ins.init();
 			}
@@ -26,6 +27,7 @@ public class ScreenMainLoading extends Screen {
 	private float rotation = 0;
 	private boolean artdone = false;
 	private boolean audiodone = false;
+	private boolean fontdone = false;
 	
 	public void render(boolean is2D) { // render while open
 		if (is2D) {
@@ -44,9 +46,14 @@ public class ScreenMainLoading extends Screen {
 				System.out.println("Audio Loaded!");
 				audiodone = true;
 			}
-			if (artdone && audiodone && load + 10000L < System.currentTimeMillis()) {
+			if (!fontdone && FontRenderer.ins.canpostinit()) {
+				System.out.println("Fonts loaded!");
+				fontdone = true;
+			}
+			if (artdone && audiodone && fontdone && load + 10000L < System.currentTimeMillis()) {
 				ImageRenderer.ins.postinit();
 				AudioHandler.ins.postinit();
+				FontRenderer.ins.init();
 				close();
 				GuiRenderer.ins.screens.add(new ScreenMainMenu());
 			}

@@ -14,6 +14,7 @@ public class FontRenderer {
 	private static class FontStorage {
 		
 		private HashMap<Integer, Integer> glyphs = new HashMap<Integer, Integer>();
+		public String name = "";
 		
 		public void addGlyph(int index, BufferedImage chr) {
 			int id = 0;
@@ -49,16 +50,40 @@ public class FontRenderer {
 		}
 	}
 	
-	public void load(Font font) {
+	private HashMap<FontStorage, BufferedImage[]> toload = new HashMap<>();
+	
+	public void preinit(Font font) {
 		FontStorage store = new FontStorage();
+		store.name = font.getName();
+		BufferedImage[] imgs = new BufferedImage[font.getNumGlyphs()];
 		for (int i = 0; i < font.getNumGlyphs(); i++) {
 			BufferedImage img = new BufferedImage(font.getSize(), font.getSize(), BufferedImage.TYPE_4BYTE_ABGR);
 			Graphics2D gfx = (Graphics2D) img.getGraphics();
 			gfx.setFont(font);
 			gfx.drawString(Character.toString((char) i), 0, 0);
-			store.addGlyph(i, img);
+			imgs[i] = img;
 		}
-		fonts.put(font.getName(), store);
+		toload.put(store, imgs);
+		done = true;
+	}
+	
+	private boolean done = false;
+	
+	public boolean canpostinit() {
+		return done;
+	}
+	
+	public void init() {
+		done = false;
+		for (FontStorage store : toload.keySet()) {
+			int i = 0;
+			for (BufferedImage img : toload.get(store)) {
+				store.addGlyph(i, img);
+				i++;
+			}
+			fonts.put(store.name, store);
+		}
+		toload.clear();
 	}
 	
 	public void draw(float x, float y, String text, String font, int size) {
