@@ -1,100 +1,67 @@
-import java.awt.Font;
-import java.awt.Graphics2D;
-import java.awt.image.BufferedImage;
-import java.nio.ByteBuffer;
 import java.util.HashMap;
 import org.lwjgl.opengl.GL11;
-import org.lwjgl.opengl.GL12;
 
 public class FontRenderer {
 	public static FontRenderer ins = new FontRenderer();
 	
 	private HashMap<String, FontStorage> fonts = new HashMap<>();
 	
+	public void loadFont(int font, String name, int width, int height) {
+		FontStorage storage = new FontStorage();
+		storage.id = font;
+		storage.width = width;
+		storage.height = height;
+		fonts.put(name, storage);
+	}
+	
 	private static class FontStorage {
 		
-		private HashMap<Integer, Integer> glyphs = new HashMap<Integer, Integer>();
-		public String name = "";
+		public int id = 0;
+		public int width = 0;
+		public int height = 0;
 		
-		public void addGlyph(int index, BufferedImage chr) {
-			int id = 0;
-			int width = chr.getWidth();
-			int height = chr.getHeight();
-			int[] pixels = new int[width * height];
-			chr.getRGB(0, 0, width, height, pixels, 0, width);
-			ByteBuffer bb = ByteBuffer.allocateDirect(width * height * 4);
-			for (int y = 0; y < height; y++) {
-				for (int x = 0; x < width; x++) {
-					int pixel = pixels[y * width + x];
-					bb.put((byte) ((pixel >> 16) & 0xFF));
-					bb.put((byte) ((pixel >> 8) & 0xFF));
-					bb.put((byte) (pixel & 0xFF));
-					bb.put((byte) ((pixel >> 24) & 0xFF));
-				}
-			}
-			bb.flip();
-			id = GL11.glGenTextures();
+		public void draw(float x, float y, float width, float height, int index) {
+			int xPos = index % 16;
+			int yPos = index / 16;
+			int xPer = this.width / 16;
+			int yPer = this.height / 16;
+			float yF = (float) yPos * (float) yPer / (float) this.height;
+			float xF = (float) xPos * (float) xPer / (float) this.width;
+			float yFM = yF + ((float) yPer / (float) this.height);
+			float xFM = xF + ((float) xPer / (float) this.width);
+			GL11.glEnable(GL11.GL_TEXTURE_2D);
 			GL11.glBindTexture(GL11.GL_TEXTURE_2D, id);
-			GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_S, GL12.GL_CLAMP_TO_EDGE);
-			GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_T, GL12.GL_CLAMP_TO_EDGE);
-			GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_NEAREST);
-			GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_NEAREST);
-			GL11.glTexImage2D(GL11.GL_TEXTURE_2D, 0, GL11.GL_RGBA8, width, height, 0, GL11.GL_RGBA, GL11.GL_UNSIGNED_BYTE, bb);
-			glyphs.put(index, id);
+			GL11.glBegin(GL11.GL_QUADS);
+			GL11.glTexCoord2f(xF, yFM);
+			GL11.glVertex3f(x, y, 0F);
+			GL11.glTexCoord2f(xFM, yFM);
+			GL11.glVertex3f(x + width, y, 0F);
+			GL11.glTexCoord2f(xFM, yF);
+			GL11.glVertex3f(x + width, y + height, 0F);
+			GL11.glTexCoord2f(xF, yF);
+			GL11.glVertex3f(x, y + height, 0F);
+			GL11.glEnd();
+			GL11.glDisable(GL11.GL_TEXTURE_2D);
 		}
-		
-		public void bindGlyph(int index) {
-			if (glyphs.containsKey(index)) {
-				GL11.glBindTexture(GL11.GL_TEXTURE_2D, glyphs.get(0));
-			}
-		}
-	}
-	
-	private HashMap<FontStorage, BufferedImage[]> toload = new HashMap<>();
-	
-	public void preinit(Font font) {
-		FontStorage store = new FontStorage();
-		store.name = font.getName();
-		BufferedImage[] imgs = new BufferedImage[font.getNumGlyphs()];
-		for (int i = 0; i < font.getNumGlyphs(); i++) {
-			BufferedImage img = new BufferedImage(font.getSize(), font.getSize(), BufferedImage.TYPE_4BYTE_ABGR);
-			Graphics2D gfx = (Graphics2D) img.getGraphics();
-			gfx.setFont(font);
-			gfx.drawString(Character.toString((char) i), 0, 0);
-			imgs[i] = img;
-		}
-		toload.put(store, imgs);
-		done = true;
-	}
-	
-	private boolean done = false;
-	
-	public boolean canpostinit() {
-		return done;
-	}
-	
-	public void init() {
-		done = false;
-		for (FontStorage store : toload.keySet()) {
-			int i = 0;
-			for (BufferedImage img : toload.get(store)) {
-				store.addGlyph(i, img);
-				i++;
-			}
-			fonts.put(store.name, store);
-		}
-		toload.clear();
 	}
 	
 	public void draw(float x, float y, String text, String font, int size) {
 		FontStorage fnt = fonts.get(font);
+		float wid = AspectManager.ToAspectX(size);
+		float hei = AspectManager.ToAspectY(size);
 		for (int i = 0; i < text.length(); i++) {
 			char chr = text.charAt(i);
-			fnt.bindGlyph(chr);
-			float wid = (float) size / (float) Start.screenWidth;
-			float hei = (float) size / (float) Start.screenHeight;
-			ImageRenderer.ins.renderAspect(x + (wid * i), y, wid, hei);
+			fnt.draw(AspectManager.ToAspectX(x + (wid * i)), AspectManager.ToAspectY(y), wid, hei, chr);
 		}
+	}
+	
+	public float getStringWidth(float x, float y, String text, String font, int size) {
+		float wid = AspectManager.ToAspectX(size);
+		float width = 0F;
+		for (int i = 0; i < text.length(); i++) {
+			width += wid * i;
+		}
+		return width;
 	}
 	
 	public void draw(float x, float y, String text, String font, float width, float height) {
@@ -103,7 +70,7 @@ public class FontRenderer {
 		float hei = height / text.length();
 		for (int i = 0; i < text.length(); i++) {
 			char chr = text.charAt(i);
-			fnt.bindGlyph(chr);
+			// fnt.bindGlyph(chr);
 			ImageRenderer.ins.renderAspect(x + (wid * i), y, wid, hei);
 		}
 	}
