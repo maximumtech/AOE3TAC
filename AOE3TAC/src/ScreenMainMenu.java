@@ -15,7 +15,7 @@ public class ScreenMainMenu extends Screen {
 		if (is2D) {
 			ImageRenderer.ins.render(0F, 0F, 1F, 1F, "ui/mainmenu/wallpaper"); // background
 			ImageRenderer.ins.renderAspect(0.03F, 0.03F, "ui/mainmenu/mainmenu"); // button background
-			FontRenderer.ins.draw(0.03F, 0.03F, "LOLZOARS", "Arial", 64);
+			FontRenderer.ins.draw(0.1F, 0.1F, "Exit", "Arial", 16);
 		}else {
 			
 		}

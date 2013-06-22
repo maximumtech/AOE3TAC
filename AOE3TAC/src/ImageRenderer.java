@@ -15,11 +15,15 @@ public class ImageRenderer {
 		public int width;
 		public int height;
 		public int id;
+		public int pwidth;
+		public int pheight;
 		
-		public Texture(int width, int height, int id) {
+		public Texture(int pwidth, int pheight, int width, int height, int id) {
 			this.width = width;
 			this.height = height;
 			this.id = id;
+			this.pwidth = pwidth;
+			this.pheight = pheight;
 		}
 	}
 	
@@ -71,7 +75,7 @@ public class ImageRenderer {
 					FontRenderer.ins.loadFont(image, argpath.substring(argpath.lastIndexOf("/") + 1), width, height);
 				}else {
 					id = loadTexture(image);
-					images.put(argpath, new Texture(width, height, id));
+					images.put(argpath, new Texture(NPOT(width), NPOT(height), width, height, id));
 				}
 			}catch (IOException e) {
 				e.printStackTrace();
@@ -79,15 +83,25 @@ public class ImageRenderer {
 		}
 	}
 	
+	public static int NPOT(int p) {
+		int pow = 2;
+		while (pow < p) {
+			pow *= 2;
+		}
+		return pow;
+	}
+	
 	public int loadTexture(BufferedImage image) {
 		int width = image.getWidth();
 		int height = image.getHeight();
+		int nw = NPOT(width);
+		int nh = NPOT(height);
 		int[] pixels = new int[width * height];
 		image.getRGB(0, 0, width, height, pixels, 0, width);
-		ByteBuffer bb = ByteBuffer.allocateDirect(width * height * 4);
-		for (int y = 0; y < height; y++) {
-			for (int x = 0; x < width; x++) {
-				int pixel = pixels[y * width + x];
+		ByteBuffer bb = ByteBuffer.allocateDirect(nw * nh * 4);
+		for (int y = 0; y < nh; y++) {
+			for (int x = 0; x < nw; x++) {
+				int pixel = y * width + x < pixels.length ? pixels[y * width + x] : 0;
 				bb.put((byte) ((pixel >> 16) & 0xFF));
 				bb.put((byte) ((pixel >> 8) & 0xFF));
 				bb.put((byte) (pixel & 0xFF));
@@ -102,7 +116,7 @@ public class ImageRenderer {
 		GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_T, GL12.GL_CLAMP_TO_EDGE);
 		GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_NEAREST);
 		GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_NEAREST);
-		GL11.glTexImage2D(GL11.GL_TEXTURE_2D, 0, GL11.GL_RGBA8, width, height, 0, GL11.GL_RGBA, GL11.GL_UNSIGNED_BYTE, bb);
+		GL11.glTexImage2D(GL11.GL_TEXTURE_2D, 0, GL11.GL_RGBA8, nw, nh, 0, GL11.GL_RGBA, GL11.GL_UNSIGNED_BYTE, bb);
 		return id;
 	}
 	
@@ -159,34 +173,19 @@ public class ImageRenderer {
 			float x2 = x + ((float) t.width / (float) Start.screenWidth) * Start.screenWidthRatio;
 			float y2 = y + ((float) t.height / (float) Start.screenHeight) * Start.screenHeightRatio;
 			GL11.glBegin(GL11.GL_QUADS);
-			GL11.glTexCoord2f(0F, 1F);
+			float tY = (float) t.height / (float) t.pheight;
+			float tX = (float) t.width / (float) t.pwidth;
+			GL11.glTexCoord2f(0F, tY);
 			GL11.glVertex3f(x, y, 0F);
-			GL11.glTexCoord2f(1F, 1F);
+			GL11.glTexCoord2f(tX, tY);
 			GL11.glVertex3f(x2, y, 0F);
-			GL11.glTexCoord2f(1F, 0F);
+			GL11.glTexCoord2f(tX, 0F);
 			GL11.glVertex3f(x2, y2, 0F);
 			GL11.glTexCoord2f(0F, 0F);
 			GL11.glVertex3f(x, y2, 0F);
 			GL11.glEnd();
 			GL11.glDisable(GL11.GL_TEXTURE_2D);
 		}
-	}
-	
-	public void render(float x, float y, float width, float height) {
-		GL11.glEnable(GL11.GL_TEXTURE_2D);
-		float x2 = x + ((float) width / (float) Start.screenWidth) * Start.screenWidthRatio;
-		float y2 = y + ((float) height / (float) Start.screenHeight) * Start.screenHeightRatio;
-		GL11.glBegin(GL11.GL_QUADS);
-		GL11.glTexCoord2f(0F, 1F);
-		GL11.glVertex3f(x, y, 0F);
-		GL11.glTexCoord2f(1F, 1F);
-		GL11.glVertex3f(x2, y, 0F);
-		GL11.glTexCoord2f(1F, 0F);
-		GL11.glVertex3f(x2, y2, 0F);
-		GL11.glTexCoord2f(0F, 0F);
-		GL11.glVertex3f(x, y2, 0F);
-		GL11.glEnd();
-		GL11.glDisable(GL11.GL_TEXTURE_2D);
 	}
 	
 	public int getWidth(String path) {
@@ -216,12 +215,14 @@ public class ImageRenderer {
 			float y2 = AspectManager.ToAspectY(y);
 			float width = x2 + AspectManager.ToAspectX(t.width);
 			float height = y2 + AspectManager.ToAspectY(t.height);
+			float tY = (float) t.height / (float) t.pheight;
+			float tX = (float) t.width / (float) t.pwidth;
 			GL11.glBegin(GL11.GL_QUADS);
-			GL11.glTexCoord2f(0F, 1F);
+			GL11.glTexCoord2f(0F, tY);
 			GL11.glVertex3f(x2, y2, 0F);
-			GL11.glTexCoord2f(1F, 1F);
+			GL11.glTexCoord2f(tX, tY);
 			GL11.glVertex3f(width, y2, 0F);
-			GL11.glTexCoord2f(1F, 0F);
+			GL11.glTexCoord2f(tX, 0F);
 			GL11.glVertex3f(width, height, 0F);
 			GL11.glTexCoord2f(0F, 0F);
 			GL11.glVertex3f(x2, height, 0F);
@@ -238,12 +239,15 @@ public class ImageRenderer {
 			float y2 = AspectManager.ToAspectY(y);
 			float width = x2 + wid;
 			float height = y2 + hei;
+			Texture t = images.get(path);
+			float tY = (float) t.height / (float) t.pheight;
+			float tX = (float) t.width / (float) t.pwidth;
 			GL11.glBegin(GL11.GL_QUADS);
-			GL11.glTexCoord2f(0F, 1F);
+			GL11.glTexCoord2f(0F, tY);
 			GL11.glVertex3f(x2, y2, 0F);
-			GL11.glTexCoord2f(1F, 1F);
+			GL11.glTexCoord2f(tX, tY);
 			GL11.glVertex3f(width, y2, 0F);
-			GL11.glTexCoord2f(1F, 0F);
+			GL11.glTexCoord2f(tX, 0F);
 			GL11.glVertex3f(width, height, 0F);
 			GL11.glTexCoord2f(0F, 0F);
 			GL11.glVertex3f(x2, height, 0F);
@@ -252,35 +256,19 @@ public class ImageRenderer {
 		}
 	}
 	
-	public void renderAspect(float x, float y, float wid, float hei) { // makes y and x coordinates the same relative distance.
-		GL11.glEnable(GL11.GL_TEXTURE_2D);
-		float width = x + wid;
-		float height = y + hei;
-		float x2 = x * (1F / ((float) Start.screenWidth / 1024F));
-		float y2 = y * (1F / ((float) Start.screenHeight / 1024F));
-		GL11.glBegin(GL11.GL_QUADS);
-		GL11.glTexCoord2f(0F, 1F);
-		GL11.glVertex3f(x2, y2, 0F);
-		GL11.glTexCoord2f(1F, 1F);
-		GL11.glVertex3f(width, y2, 0F);
-		GL11.glTexCoord2f(1F, 0F);
-		GL11.glVertex3f(width, height, 0F);
-		GL11.glTexCoord2f(0F, 0F);
-		GL11.glVertex3f(x2, height, 0F);
-		GL11.glEnd();
-		GL11.glDisable(GL11.GL_TEXTURE_2D);
-	}
-	
 	public void render(float x, float y, float width, float height, String path) {
 		if (images.containsKey(path)) {
 			GL11.glEnable(GL11.GL_TEXTURE_2D);
 			bind(path);
 			GL11.glBegin(GL11.GL_QUADS);
-			GL11.glTexCoord2f(0F, 1F);
+			Texture t = images.get(path);
+			float tY = (float) t.height / (float) t.pheight;
+			float tX = (float) t.width / (float) t.pwidth;
+			GL11.glTexCoord2f(0F, tY);
 			GL11.glVertex3f(x, y, 0F);
-			GL11.glTexCoord2f(1F, 1F);
+			GL11.glTexCoord2f(tX, tY);
 			GL11.glVertex3f(x + width, y, 0F);
-			GL11.glTexCoord2f(1F, 0F);
+			GL11.glTexCoord2f(tX, 0F);
 			GL11.glVertex3f(x + width, y + height, 0F);
 			GL11.glTexCoord2f(0F, 0F);
 			GL11.glVertex3f(x, y + height, 0F);
@@ -314,12 +302,14 @@ public class ImageRenderer {
 			if (newHeight < height) {
 				ny = ((height - newHeight) / 2);
 			}
+			float tY = (float) t.height / (float) t.pheight;
+			float tX = (float) t.width / (float) t.pwidth;
 			GL11.glBegin(GL11.GL_QUADS);
-			GL11.glTexCoord2f(0F, 1F);
+			GL11.glTexCoord2f(0F, tY);
 			GL11.glVertex3f(nx, ny, 0F);
-			GL11.glTexCoord2f(1F, 1F);
+			GL11.glTexCoord2f(tX, tY);
 			GL11.glVertex3f(nx + newWidth, ny, 0F);
-			GL11.glTexCoord2f(1F, 0F);
+			GL11.glTexCoord2f(tX, 0F);
 			GL11.glVertex3f(nx + newWidth, ny + newHeight, 0F);
 			GL11.glTexCoord2f(0F, 0F);
 			GL11.glVertex3f(nx, ny + newHeight, 0F);

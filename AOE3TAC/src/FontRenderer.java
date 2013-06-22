@@ -1,5 +1,5 @@
-import java.awt.Color;
 import java.awt.image.BufferedImage;
+import java.awt.image.WritableRaster;
 import java.util.HashMap;
 import org.lwjgl.opengl.GL11;
 
@@ -18,34 +18,60 @@ public class FontRenderer {
 		for (int x = 0; x < xt; x++) {
 			for (int y = 0; y < yt; y++) {
 				BufferedImage img = fnt.getSubimage(x * xp, y * yp, xp, yp);
-				int mX = img.getWidth();
-				int mY = img.getHeight();
-				for (int px = img.getWidth() - 1; px >= 0; px--) {
-					int pt = 0;
-					for (int py = 0; py < img.getHeight(); py++) {
-						Color color = new Color(img.getRGB(px, py), true);
-						if (color.getAlpha() == 0) {
-							pt++;
+				WritableRaster raster = img.getWritableTile(0, 0);
+				int wid = img.getWidth();
+				int hei = img.getHeight();
+				int minX = 0;
+				int maxX = wid;
+				int minY = 0;
+				int maxY = hei;
+				l1: for (int xx = 0; xx < wid; xx++) {
+					int[] pix = raster.getPixels(xx, 0, 1, hei, (int[]) null);
+					for (int rgb : pix) {
+						if (rgb > 0) {
+							break l1;
 						}
 					}
-					if (pt >= img.getHeight()) {
-						mX--;
+					minX++;
+				}
+				if (minX < maxX) {
+					l2: for (int xx = wid - 1; xx >= 0; xx--) {
+						int[] pix = raster.getPixels(xx, 0, 1, hei, (int[]) null);
+						for (int rgb : pix) {
+							if (rgb > 0) {
+								break l2;
+							}
+						}
+						maxX--;
 					}
 				}
-				for (int py = img.getHeight() - 1; py >= 0; py--) {
-					int pt = 0;
-					for (int px = 0; px < img.getWidth(); px++) {
-						Color color = new Color(img.getRGB(px, py), true);
-						if (color.getAlpha() == 0) {
-							pt++;
+				l3: for (int yy = 0; yy < hei; yy++) {
+					int[] pix = raster.getPixels(0, yy, wid, 1, (int[]) null);
+					for (int rgb : pix) {
+						if (rgb > 0) {
+							break l3;
 						}
 					}
-					if (pt >= img.getWidth()) {
-						mY--;
+					minY++;
+				}
+				if (minY < maxY) {
+					l4: for (int yy = hei - 1; yy >= 0; yy--) {
+						int[] pix = raster.getPixels(0, yy, wid, 1, (int[]) null);
+						for (int rgb : pix) {
+							if (rgb > 0) {
+								break l4;
+							}
+						}
+						maxY--;
 					}
 				}
-				img = img.getSubimage(0, 0, mX == 0 ? img.getWidth() : mX, mY == 0 ? img.getHeight() : mY);
-				storage.glyph.put(y * xt + x, ImageRenderer.ins.loadTexture(img));
+				if (minX < maxX && minY < maxY) img = img.getSubimage(minX, minY, maxX - minX, maxY - minY);
+				/*
+				 * File out = new File("C:\\Users\\Max\\Desktop\\temp\\" + ((char) y * xt + x) + ".png"); try { out.mkdirs(); out.delete(); out.createNewFile(); ImageIO.write(img, "png", out); }catch (IOException e) { e.printStackTrace(); }
+				 */
+				int twid = maxX - minX;
+				int thei = maxY - minY;
+				storage.glyph.put((y + 1) * xt + x, new ImageRenderer.Texture(ImageRenderer.NPOT(twid), ImageRenderer.NPOT(thei), twid, thei, ImageRenderer.ins.loadTexture(img)));
 			}
 		}
 		fonts.put(name, storage);
@@ -54,41 +80,62 @@ public class FontRenderer {
 	private static class FontStorage {
 		
 		public int size = 0;
-		public HashMap<Integer, Integer> glyph = new HashMap<Integer, Integer>();
+		public HashMap<Integer, ImageRenderer.Texture> glyph = new HashMap<Integer, ImageRenderer.Texture>();
 		
-		public void draw(float x, float y, float width, float height, int index) {
+		public void draw(float x, float y, int sized, int index) {
+			ImageRenderer.Texture t = glyph.get(index);
+			float tY = (float) t.height / (float) t.pheight;
+			float tX = (float) t.width / (float) t.pwidth;
 			GL11.glEnable(GL11.GL_TEXTURE_2D);
-			GL11.glBindTexture(GL11.GL_TEXTURE_2D, glyph.get(index));
+			GL11.glPushMatrix();
+			GL11.glBindTexture(GL11.GL_TEXTURE_2D, t.id);
+			float scale = (float) sized / (float) size;
+			float wid = AspectManager.ToAspectX(t.width) * scale;
+			float hei = AspectManager.ToAspectY(t.height) * scale;
 			GL11.glBegin(GL11.GL_QUADS);
-			GL11.glTexCoord2f(0F, 1F);
+			GL11.glTexCoord2f(0F, tY);
 			GL11.glVertex3f(x, y, 0F);
-			GL11.glTexCoord2f(1F, 1F);
-			GL11.glVertex3f(x + width, y, 0F);
-			GL11.glTexCoord2f(1F, 0F);
-			GL11.glVertex3f(x + width, y + height, 0F);
+			GL11.glTexCoord2f(tX, tY);
+			GL11.glVertex3f(x + wid, y, 0F);
+			GL11.glTexCoord2f(tX, 0F);
+			GL11.glVertex3f(x + wid, y + hei, 0F);
 			GL11.glTexCoord2f(0F, 0F);
-			GL11.glVertex3f(x, y + height, 0F);
+			GL11.glVertex3f(x, y + hei, 0F);
 			GL11.glEnd();
+			GL11.glPopMatrix();
 			GL11.glDisable(GL11.GL_TEXTURE_2D);
+		}
+		
+		public float getWidth(int sized, int index) {
+			float scale = (float) sized / (float) size;
+			ImageRenderer.Texture t = glyph.get(index);
+			return AspectManager.ToAspectX(t.width) * scale;
 		}
 	}
 	
+	private final float padding = 0.005F;
+	
 	public void draw(float x, float y, String text, String font, int size) {
 		FontStorage fnt = fonts.get(font);
-		float wid = AspectManager.ToAspectX(size);
-		float hei = AspectManager.ToAspectY(size);
+		float cwid = 0F;
+		float xxp = AspectManager.ToAspectX(padding);
+		float yy = AspectManager.ToAspectY(y);
+		float xx = AspectManager.ToAspectX(x);
 		for (int i = 0; i < text.length(); i++) {
 			char chr = text.charAt(i);
-			fnt.draw(AspectManager.ToAspectX(x + (wid * i)), AspectManager.ToAspectY(y), wid, hei, chr);
+			fnt.draw(xx + cwid, yy, size, chr);
+			cwid += fnt.getWidth(size, chr) + xxp;
 		}
 	}
 	
 	public float getStringWidth(float x, float y, String text, String font, int size) {
-		float wid = AspectManager.ToAspectX(size);
-		float width = 0F;
+		FontStorage fnt = fonts.get(font);
+		float cwid = 0F;
+		float xxp = AspectManager.ToAspectX(padding);
 		for (int i = 0; i < text.length(); i++) {
-			width += wid * i;
+			char chr = text.charAt(i);
+			cwid += fnt.getWidth(size, chr) + xxp;
 		}
-		return width;
+		return cwid;
 	}
 }
